@@ -114,9 +114,9 @@ resource "aws_apigatewayv2_stage" "default" {
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gw.arn
     format = jsonencode({
-      requestId = "$context.requestId", ip = "$context.identity.sourceIp",
+      requestId   = "$context.requestId", ip = "$context.identity.sourceIp",
       requestTime = "$context.requestTime", routeKey = "$context.routeKey",
-      status = "$context.status", integrationErrorMessage = "$context.integrationErrorMessage"
+      status      = "$context.status", integrationErrorMessage = "$context.integrationErrorMessage"
     })
   }
 }
@@ -131,7 +131,7 @@ resource "aws_lambda_permission" "apigw" {
 
 output "webhook_url" {
   description = "The invoke URL for the GitHub webhook"
-  value = "${trimsuffix(aws_apigatewayv2_stage.default.invoke_url, "/")}/webhook"
+  value       = "${trimsuffix(aws_apigatewayv2_stage.default.invoke_url, "/")}/webhook"
 }
 
 resource "aws_sqs_queue" "webhook_dlq" {
