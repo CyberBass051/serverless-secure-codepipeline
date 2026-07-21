@@ -1,0 +1,25 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# Secrets / local config
+*.tfvars
+!*.tfvars.example
+
+# Python
+__pycache__/
+*.pyc
+*.zip
+
+# Reports (gitignored per README design)
+logs/
+report.json
