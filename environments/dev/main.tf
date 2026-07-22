@@ -47,7 +47,3 @@ resource "aws_secretsmanager_secret_version" "github" {
   secret_id     = aws_secretsmanager_secret.github_webhook.id
   secret_string = var.webhook_secret_value
 }
-
-module "oidc" {
-  source = "../../modules/oidc"
-}

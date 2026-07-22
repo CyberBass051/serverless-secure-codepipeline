@@ -48,32 +48,6 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 1
 
-  terraform-plan:
-    needs: trivy
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      
-      - name: Configure AWS Credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::221717898536:role/cicd-pipeline-github-actions-plan
-          aws-region: us-east-1
-      
-      - name: Terraform Init
-        run: terraform -chdir=environments/dev init -backend-config=backend-ci.hcl
 
-      - name: Terraform Plan
-        run: terraform -chdir=environments/dev plan -out=tfplan
-
-      - name: Upload Plan Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan
-          path: environments/dev/tfplan
   
   
