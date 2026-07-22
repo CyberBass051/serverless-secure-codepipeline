@@ -7,7 +7,6 @@ resource "aws_iam_openid_connect_provider" "github" {
 
 resource "aws_iam_role" "github_actions_plan" {
   name = "cicd-pipeline-github-actions-plan"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -18,10 +17,8 @@ resource "aws_iam_role" "github_actions_plan" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-        }
-        StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:CyberBass051/serverless-secure-codepipeline:*"
+          "token.actions.githubusercontent.com:aud"              = "sts.amazonaws.com"
+          "token.actions.githubusercontent.com:job_workflow_ref" = "CyberBass051/serverless-secure-codepipeline/.github/workflows/security-scan.yml@refs/heads/main"
         }
       }
     }]
