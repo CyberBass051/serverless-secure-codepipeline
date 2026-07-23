@@ -38,7 +38,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline_artifact
   }
 }
 
-resource "aws_s3_lifecycle_configuration" "pipeline_artifacts" {
+resource "aws_s3_bucket_lifecycle_configuration" "pipeline_artifacts" {
   bucket = aws_s3_bucket.pipeline_artifacts.id
 
   rule {
