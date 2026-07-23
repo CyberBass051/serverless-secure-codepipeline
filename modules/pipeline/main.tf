@@ -354,7 +354,7 @@ resource "aws_iam_role_policy" "codepipeline" {
         Sid      = "SnsApprovalPublish"
         Effect   = "Allow"
         Action   = "sns:Publish"
-        Resource = var.approval_gate
+        Resource = var.approval_topic_arn
       }
     ]
   })
