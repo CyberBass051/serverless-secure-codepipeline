@@ -1,6 +1,6 @@
-# Checkov Scan Exceptions
+# Checkov & Trivy Scan Exceptions
 
-This document tracks Checkov findings that are intentionally not
+This document tracks Checkov and Trivy findings that are intentionally not
 remediated, with the reasoning for each. Every exception listed here
 is also suppressed inline in the relevant `.tf` file with a matching
 `checkov:skip` comment, so the CI scan passes honestly rather than by
@@ -85,6 +85,15 @@ rotation would require a rotation Lambda that also updates the
 corresponding secret on the GitHub webhook configuration side, which
 GitHub's API supports but which is out of scope for this project's
 current stage.
+
+## CKV_AWS_145 / AVD-AWS-0132 — S3 bucket not encrypted with a KMS CMK
+**Resource:** `module.pipeline.aws_s3_bucket.pipeline_artifacts`
+
+**Accepted.** Same reasoning as CKV_AWS_149/CKV_AWS_173 — this bucket
+stores CodePipeline's build artifacts (zipped source code), not
+secrets or sensitive data. AWS-managed SSE-S3 encryption is sufficient;
+a customer-managed CMK's added key-policy control isn't justified for
+this content.
 
 ---
 

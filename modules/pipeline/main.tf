@@ -15,6 +15,8 @@ resource "aws_codestarconnections_connection" "github" {
 
 # ── Artifact storage ──
 resource "aws_s3_bucket" "pipeline_artifacts" {
+  # checkov:skip=CKV_AWS_145: AWS-managed key sufficient for build artifacts (source code zips, not secrets); see docs/security/scan-exceptions.md
+  #trivy:ignore:AVD-AWS-0132
   bucket = "cicd-pipeline-artifacts-221717898536"
 }
 
