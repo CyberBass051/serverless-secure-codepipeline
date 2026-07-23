@@ -48,6 +48,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "pipeline_artifacts" {
     id     = "expire-old-artifacts"
     status = "Enabled"
 
+    filter {}
+
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
@@ -89,6 +91,18 @@ resource "aws_iam_role_policy" "lambda_exec_prod" {
         Effect   = "Allow"
         Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
         Resource = "arn:aws:logs:us-east-1:221717898536:log-group:/aws/lambda/cicd-pipeline-*"
+      },
+      {
+        Sid      = "DLQSend"
+        Effect   = "Allow"
+        Action   = "sqs:SendMessage"
+        Resource = aws_sqs_queue.prod_dlq.arn
+      },
+      {
+        Sid      = "XRayTracing"
+        Effect   = "Allow"
+        Action   = ["xray:PutTraceSegments", "xray:PutTelemetryRecords"]
+        Resource = "*"
       }
     ]
   })
@@ -105,6 +119,7 @@ resource "aws_lambda_function" "webhook_handler_prod" {
   # checkov:skip=CKV_AWS_117: demo/promotion-target Lambda, not in VPC; see docs/security/scan-exceptions.md
   # checkov:skip=CKV_AWS_173: env vars are non-sensitive identifiers, not secrets; see docs/security/scan-exceptions.md
   # checkov:skip=CKV_AWS_272: single-maintainer project, code signing overhead not justified; see docs/security/scan-exceptions.md
+  # checkov:skip=CKV_AWS_115: account-level concurrency quota (10 total, AWS enforces a 10-unreserved floor) makes any reservation infeasible without a quota increase; see docs/security/scan-exceptions.md
   function_name                  = "cicd-pipeline-webhook-handler-prod"
   role                           = aws_iam_role.lambda_exec_prod.arn
   handler                        = "handler.lambda_handler"
@@ -112,7 +127,7 @@ resource "aws_lambda_function" "webhook_handler_prod" {
   filename                       = data.archive_file.prod_handler.output_path
   source_code_hash               = data.archive_file.prod_handler.output_base64sha256
   timeout                        = 10
-  reserved_concurrent_executions = 5
+  
 
   dead_letter_config {
     target_arn = aws_sqs_queue.prod_dlq.arn

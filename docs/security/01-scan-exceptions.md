@@ -85,6 +85,19 @@ findings — it's the same underlying bucket.
 **Accepted.** Projects handle build logs and source-code artifacts,
 not secrets.
 
+## CKV_AWS_115 — No function-level concurrency limit (both Lambdas)
+**Resources:** `module.webhook_receiver.aws_lambda_function.webhook_handler`,
+`module.pipeline.aws_lambda_function.webhook_handler_prod`
+
+**Accepted.** This AWS account's default Lambda concurrency quota is
+10 total executions, and AWS enforces a hard floor of 10 unreserved
+executions account-wide — meaning no function in this account can
+be assigned any reserved concurrency without first requesting a
+service quota increase. Reserving concurrency for either function
+under the current quota would be rejected by the API. A quota
+increase request has not yet been submitted; this exception
+should be revisited once the account limit is raised.
+
 ---
 
 ## Remediated (fixed directly, not exceptions)

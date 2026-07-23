@@ -1,0 +1,100 @@
+{
+    "Events": [
+        {
+            "EventId": "27d817da-0fa4-457a-b7f1-f124eadab153",
+            "EventName": "CreateBucket",
+            "ReadOnly": "false",
+            "AccessKeyId": "ASIATHH3KUUUP6NTBYYP",
+            "EventTime": "2026-07-23T20:12:57+02:00",
+            "EventSource": "s3.amazonaws.com",
+            "Username": "CICDPipeline",
+            "Resources": [
+                {
+                    "ResourceType": "AWS::S3::Bucket",
+                    "ResourceName": "cicd-pipeline-artifacts-221717898536"
+                }
+            ],
+            "CloudTrailEvent": "{\"eventVersion\":\"1.11\",\"userIdentity\":{\"type\":\"AssumedRole\",\"principalId\":\"AROATHH3KUUULPTPNM5GX:CICDPipeline\",\"arn\":\"arn:aws:sts::221717898536:assumed-role/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69/CICDPipeline\",\"accountId\":\"221717898536\",\"accessKeyId\":\"ASIATHH3KUUUP6NTBYYP\",\"sessionContext\":{\"sessionIssuer\":{\"type\":\"Role\",\"principalId\":\"AROATHH3KUUULPTPNM5GX\",\"arn\":\"arn:aws:iam::221717898536:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\",\"accountId\":\"221717898536\",\"userName\":\"AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\"},\"attributes\":{\"creationDate\":\"2026-07-23T18:12:55Z\",\"mfaAuthenticated\":\"false\"}},\"onBehalfOf\":{\"userId\":\"34c8e458-30b1-7045-05b8-e7c6a16b81b3\",\"identityStoreArn\":\"arn:aws:identitystore::221717898536:identitystore/d-906676457a\"}},\"eventTime\":\"2026-07-23T18:12:57Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"CreateBucket\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"212.165.204.117\",\"userAgent\":\"[APN/1.0 HashiCorp/1.0 Terraform/1.14.4 (+https://www.terraform.io) terraform-provider-aws/5.100.0 (+https://registry.terraform.io/providers/hashicorp/aws) aws-sdk-go-v2/1.36.3 ua/2.1 os/linux lang/go#1.23.10 md/GOOS#linux md/GOARCH#amd64 api/s3#1.80.1 m/r,t,u]\",\"requestParameters\":{\"bucketName\":\"cicd-pipeline-artifacts-221717898536\",\"Host\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\",\"x-amz-acl\":\"private\"},\"responseElements\":null,\"additionalEventData\":{\"SignatureVersion\":\"SigV4\",\"CipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"bytesTransferredIn\":0,\"AuthenticationMethod\":\"AuthHeader\",\"x-amz-id-2\":\"yLlisRhjjuNX+4YMWma0kL1GHO7Zg+Cc3lNtB2ZuYHCKBeIkfEhljyWjHRo+VvgnF2tnuTG9FirgpiAKLNJDf/QZElhTYKCH\",\"bytesTransferredOut\":0},\"requestID\":\"WXRP66DMS3CPDEZN\",\"eventID\":\"27d817da-0fa4-457a-b7f1-f124eadab153\",\"readOnly\":false,\"eventType\":\"AwsApiCall\",\"managementEvent\":true,\"recipientAccountId\":\"221717898536\",\"eventCategory\":\"Management\",\"tlsDetails\":{\"tlsVersion\":\"TLSv1.3\",\"cipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"clientProvidedHostHeader\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\"}}"
+        },
+        {
+            "EventId": "25f5109f-10a8-48df-a17d-9c2e3e7d3a43",
+            "EventName": "CreateBucket",
+            "ReadOnly": "false",
+            "AccessKeyId": "ASIATHH3KUUUKZ5BENC3",
+            "EventTime": "2026-07-23T20:05:18+02:00",
+            "EventSource": "s3.amazonaws.com",
+            "Username": "CICDPipeline",
+            "Resources": [
+                {
+                    "ResourceType": "AWS::S3::Bucket",
+                    "ResourceName": "cicd-pipeline-artifacts-221717898536"
+                }
+            ],
+            "CloudTrailEvent": "{\"eventVersion\":\"1.11\",\"userIdentity\":{\"type\":\"AssumedRole\",\"principalId\":\"AROATHH3KUUULPTPNM5GX:CICDPipeline\",\"arn\":\"arn:aws:sts::221717898536:assumed-role/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69/CICDPipeline\",\"accountId\":\"221717898536\",\"accessKeyId\":\"ASIATHH3KUUUKZ5BENC3\",\"sessionContext\":{\"sessionIssuer\":{\"type\":\"Role\",\"principalId\":\"AROATHH3KUUULPTPNM5GX\",\"arn\":\"arn:aws:iam::221717898536:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\",\"accountId\":\"221717898536\",\"userName\":\"AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\"},\"attributes\":{\"creationDate\":\"2026-07-23T18:05:17Z\",\"mfaAuthenticated\":\"false\"}},\"onBehalfOf\":{\"userId\":\"34c8e458-30b1-7045-05b8-e7c6a16b81b3\",\"identityStoreArn\":\"arn:aws:identitystore::221717898536:identitystore/d-906676457a\"}},\"eventTime\":\"2026-07-23T18:05:18Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"CreateBucket\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"212.165.204.117\",\"userAgent\":\"[APN/1.0 HashiCorp/1.0 Terraform/1.14.4 (+https://www.terraform.io) terraform-provider-aws/5.100.0 (+https://registry.terraform.io/providers/hashicorp/aws) aws-sdk-go-v2/1.36.3 ua/2.1 os/linux lang/go#1.23.10 md/GOOS#linux md/GOARCH#amd64 api/s3#1.80.1 m/r,t,u]\",\"requestParameters\":{\"bucketName\":\"cicd-pipeline-artifacts-221717898536\",\"Host\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\",\"x-amz-acl\":\"private\"},\"responseElements\":null,\"additionalEventData\":{\"SignatureVersion\":\"SigV4\",\"CipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"bytesTransferredIn\":0,\"AuthenticationMethod\":\"AuthHeader\",\"x-amz-id-2\":\"Q+nYRqNnaqT1l6d0lyHM++kaxLEEKbKETtIyHO3Hq2YDduOnlITzd1VJTEM5pNM4+X+AppNONRa2lok8JIXs/FwlRJuQ7oAe\",\"bytesTransferredOut\":0},\"requestID\":\"9E8WN95VA3CDBHRA\",\"eventID\":\"25f5109f-10a8-48df-a17d-9c2e3e7d3a43\",\"readOnly\":false,\"eventType\":\"AwsApiCall\",\"managementEvent\":true,\"recipientAccountId\":\"221717898536\",\"eventCategory\":\"Management\",\"tlsDetails\":{\"tlsVersion\":\"TLSv1.3\",\"cipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"clientProvidedHostHeader\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\"}}"
+        },
+        {
+            "EventId": "e0ffc141-3e59-44b9-961a-9d7854c131cb",
+            "EventName": "CreateBucket",
+            "ReadOnly": "false",
+            "AccessKeyId": "ASIATHH3KUUUKMS5OUWR",
+            "EventTime": "2026-07-23T20:00:45+02:00",
+            "EventSource": "s3.amazonaws.com",
+            "Username": "CICDPipeline",
+            "Resources": [
+                {
+                    "ResourceType": "AWS::S3::Bucket",
+                    "ResourceName": "cicd-pipeline-artifacts-221717898536"
+                }
+            ],
+            "CloudTrailEvent": "{\"eventVersion\":\"1.11\",\"userIdentity\":{\"type\":\"AssumedRole\",\"principalId\":\"AROATHH3KUUULPTPNM5GX:CICDPipeline\",\"arn\":\"arn:aws:sts::221717898536:assumed-role/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69/CICDPipeline\",\"accountId\":\"221717898536\",\"accessKeyId\":\"ASIATHH3KUUUKMS5OUWR\",\"sessionContext\":{\"sessionIssuer\":{\"type\":\"Role\",\"principalId\":\"AROATHH3KUUULPTPNM5GX\",\"arn\":\"arn:aws:iam::221717898536:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\",\"accountId\":\"221717898536\",\"userName\":\"AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\"},\"attributes\":{\"creationDate\":\"2026-07-23T18:00:44Z\",\"mfaAuthenticated\":\"false\"}},\"onBehalfOf\":{\"userId\":\"34c8e458-30b1-7045-05b8-e7c6a16b81b3\",\"identityStoreArn\":\"arn:aws:identitystore::221717898536:identitystore/d-906676457a\"}},\"eventTime\":\"2026-07-23T18:00:45Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"CreateBucket\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"212.165.204.117\",\"userAgent\":\"[APN/1.0 HashiCorp/1.0 Terraform/1.14.4 (+https://www.terraform.io) terraform-provider-aws/5.100.0 (+https://registry.terraform.io/providers/hashicorp/aws) aws-sdk-go-v2/1.36.3 ua/2.1 os/linux lang/go#1.23.10 md/GOOS#linux md/GOARCH#amd64 api/s3#1.80.1 m/r,t,u]\",\"requestParameters\":{\"bucketName\":\"cicd-pipeline-artifacts-221717898536\",\"Host\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\",\"x-amz-acl\":\"private\"},\"responseElements\":null,\"additionalEventData\":{\"SignatureVersion\":\"SigV4\",\"CipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"bytesTransferredIn\":0,\"AuthenticationMethod\":\"AuthHeader\",\"x-amz-id-2\":\"JTdseH+tmrI5Urbh+EtMMkKU1v7KBqom56BRYL94fbuBaRlufIy2ZAxaP7FPxccXV0IOMqPxy24=\",\"bytesTransferredOut\":0},\"requestID\":\"ASEQFAC3PJNMPZ10\",\"eventID\":\"e0ffc141-3e59-44b9-961a-9d7854c131cb\",\"readOnly\":false,\"eventType\":\"AwsApiCall\",\"managementEvent\":true,\"recipientAccountId\":\"221717898536\",\"eventCategory\":\"Management\",\"tlsDetails\":{\"tlsVersion\":\"TLSv1.3\",\"cipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"clientProvidedHostHeader\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\"}}"
+        },
+        {
+            "EventId": "02526efa-f034-4945-9fa2-d195e89b1b1a",
+            "EventName": "CreateBucket",
+            "ReadOnly": "false",
+            "AccessKeyId": "ASIATHH3KUUUMITRKJFE",
+            "EventTime": "2026-07-23T19:24:38+02:00",
+            "EventSource": "s3.amazonaws.com",
+            "Username": "CICDPipeline",
+            "Resources": [
+                {
+                    "ResourceType": "AWS::S3::Bucket",
+                    "ResourceName": "cicd-pipeline-artifacts-221717898536"
+                }
+            ],
+            "CloudTrailEvent": "{\"eventVersion\":\"1.11\",\"userIdentity\":{\"type\":\"AssumedRole\",\"principalId\":\"AROATHH3KUUULPTPNM5GX:CICDPipeline\",\"arn\":\"arn:aws:sts::221717898536:assumed-role/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69/CICDPipeline\",\"accountId\":\"221717898536\",\"accessKeyId\":\"ASIATHH3KUUUMITRKJFE\",\"sessionContext\":{\"sessionIssuer\":{\"type\":\"Role\",\"principalId\":\"AROATHH3KUUULPTPNM5GX\",\"arn\":\"arn:aws:iam::221717898536:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\",\"accountId\":\"221717898536\",\"userName\":\"AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\"},\"attributes\":{\"creationDate\":\"2026-07-23T17:24:36Z\",\"mfaAuthenticated\":\"false\"}},\"onBehalfOf\":{\"userId\":\"34c8e458-30b1-7045-05b8-e7c6a16b81b3\",\"identityStoreArn\":\"arn:aws:identitystore::221717898536:identitystore/d-906676457a\"}},\"eventTime\":\"2026-07-23T17:24:38Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"CreateBucket\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"212.165.204.117\",\"userAgent\":\"[APN/1.0 HashiCorp/1.0 Terraform/1.14.4 (+https://www.terraform.io) terraform-provider-aws/5.100.0 (+https://registry.terraform.io/providers/hashicorp/aws) aws-sdk-go-v2/1.36.3 ua/2.1 os/linux lang/go#1.23.10 md/GOOS#linux md/GOARCH#amd64 api/s3#1.80.1 m/r,t,u]\",\"requestParameters\":{\"bucketName\":\"cicd-pipeline-artifacts-221717898536\",\"Host\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\",\"x-amz-acl\":\"private\"},\"responseElements\":null,\"additionalEventData\":{\"SignatureVersion\":\"SigV4\",\"CipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"bytesTransferredIn\":0,\"AuthenticationMethod\":\"AuthHeader\",\"x-amz-id-2\":\"xH9yF7YqLMVQdHqh7iSlMqbK754HQ2nh/y5o1oCijkC+9ofBZCmxSSFvh2uGxDY/RL0hwQOWJyQ=\",\"bytesTransferredOut\":0},\"requestID\":\"G99WQPM6TBXAX2H6\",\"eventID\":\"02526efa-f034-4945-9fa2-d195e89b1b1a\",\"readOnly\":false,\"eventType\":\"AwsApiCall\",\"managementEvent\":true,\"recipientAccountId\":\"221717898536\",\"eventCategory\":\"Management\",\"tlsDetails\":{\"tlsVersion\":\"TLSv1.3\",\"cipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"clientProvidedHostHeader\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\"}}"
+        },
+        {
+            "EventId": "62bb1527-46dd-4fff-bd19-a8e27c62b0b7",
+            "EventName": "CreateBucket",
+            "ReadOnly": "false",
+            "AccessKeyId": "ASIATHH3KUUULISM7ERT",
+            "EventTime": "2026-07-23T19:09:02+02:00",
+            "EventSource": "s3.amazonaws.com",
+            "Username": "CICDPipeline",
+            "Resources": [
+                {
+                    "ResourceType": "AWS::S3::Bucket",
+                    "ResourceName": "cicd-pipeline-artifacts-221717898536"
+                }
+            ],
+            "CloudTrailEvent": "{\"eventVersion\":\"1.11\",\"userIdentity\":{\"type\":\"AssumedRole\",\"principalId\":\"AROATHH3KUUULPTPNM5GX:CICDPipeline\",\"arn\":\"arn:aws:sts::221717898536:assumed-role/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69/CICDPipeline\",\"accountId\":\"221717898536\",\"accessKeyId\":\"ASIATHH3KUUULISM7ERT\",\"sessionContext\":{\"sessionIssuer\":{\"type\":\"Role\",\"principalId\":\"AROATHH3KUUULPTPNM5GX\",\"arn\":\"arn:aws:iam::221717898536:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\",\"accountId\":\"221717898536\",\"userName\":\"AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\"},\"attributes\":{\"creationDate\":\"2026-07-23T17:08:51Z\",\"mfaAuthenticated\":\"false\"}},\"onBehalfOf\":{\"userId\":\"34c8e458-30b1-7045-05b8-e7c6a16b81b3\",\"identityStoreArn\":\"arn:aws:identitystore::221717898536:identitystore/d-906676457a\"}},\"eventTime\":\"2026-07-23T17:09:02Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"CreateBucket\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"212.165.204.117\",\"userAgent\":\"[APN/1.0 HashiCorp/1.0 Terraform/1.14.4 (+https://www.terraform.io) terraform-provider-aws/5.100.0 (+https://registry.terraform.io/providers/hashicorp/aws) aws-sdk-go-v2/1.36.3 ua/2.1 os/linux lang/go#1.23.10 md/GOOS#linux md/GOARCH#amd64 api/s3#1.80.1 m/r,t,u]\",\"errorCode\":\"AccessDenied\",\"errorMessage\":\"User: arn:aws:sts::221717898536:assumed-role/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69/CICDPipeline is not authorized to perform: s3:CreateBucket on resource: \\\"arn:aws:s3:::cicd-pipeline-artifacts-221717898536\\\" because no identity-based policy allows the s3:CreateBucket action\",\"requestParameters\":{\"bucketName\":\"cicd-pipeline-artifacts-221717898536\",\"Host\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\",\"x-amz-acl\":\"private\"},\"responseElements\":null,\"additionalEventData\":{\"SignatureVersion\":\"SigV4\",\"CipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"bytesTransferredIn\":0,\"AuthenticationMethod\":\"AuthHeader\",\"x-amz-id-2\":\"7m4DQRjDWewZc5NBZzRPKHL+jd4w4EqXct004tYkf16/KqsL0TfqOciNwsL/9FmUIe4xsO5t2zORoFCaKrD5Rfz4IZ2IbbZr\",\"bytesTransferredOut\":534},\"requestID\":\"CZQVDHGRV8M3H3WP\",\"eventID\":\"62bb1527-46dd-4fff-bd19-a8e27c62b0b7\",\"readOnly\":false,\"eventType\":\"AwsApiCall\",\"managementEvent\":true,\"recipientAccountId\":\"221717898536\",\"eventCategory\":\"Management\",\"tlsDetails\":{\"tlsVersion\":\"TLSv1.3\",\"cipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"clientProvidedHostHeader\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\"}}"
+        },
+        {
+            "EventId": "5ce9395a-e296-4e07-819d-d332d786b5ac",
+            "EventName": "CreateBucket",
+            "ReadOnly": "false",
+            "AccessKeyId": "ASIATHH3KUUUJLMP2ZQN",
+            "EventTime": "2026-07-23T17:36:54+02:00",
+            "EventSource": "s3.amazonaws.com",
+            "Username": "CICDPipeline",
+            "Resources": [
+                {
+                    "ResourceType": "AWS::S3::Bucket",
+                    "ResourceName": "cicd-pipeline-artifacts-221717898536"
+                }
+            ],
+            "CloudTrailEvent": "{\"eventVersion\":\"1.11\",\"userIdentity\":{\"type\":\"AssumedRole\",\"principalId\":\"AROATHH3KUUULPTPNM5GX:CICDPipeline\",\"arn\":\"arn:aws:sts::221717898536:assumed-role/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69/CICDPipeline\",\"accountId\":\"221717898536\",\"accessKeyId\":\"ASIATHH3KUUUJLMP2ZQN\",\"sessionContext\":{\"sessionIssuer\":{\"type\":\"Role\",\"principalId\":\"AROATHH3KUUULPTPNM5GX\",\"arn\":\"arn:aws:iam::221717898536:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\",\"accountId\":\"221717898536\",\"userName\":\"AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69\"},\"attributes\":{\"creationDate\":\"2026-07-23T15:36:43Z\",\"mfaAuthenticated\":\"false\"}},\"onBehalfOf\":{\"userId\":\"34c8e458-30b1-7045-05b8-e7c6a16b81b3\",\"identityStoreArn\":\"arn:aws:identitystore::221717898536:identitystore/d-906676457a\"}},\"eventTime\":\"2026-07-23T15:36:54Z\",\"eventSource\":\"s3.amazonaws.com\",\"eventName\":\"CreateBucket\",\"awsRegion\":\"us-east-1\",\"sourceIPAddress\":\"212.165.204.117\",\"userAgent\":\"[APN/1.0 HashiCorp/1.0 Terraform/1.14.4 (+https://www.terraform.io) terraform-provider-aws/5.100.0 (+https://registry.terraform.io/providers/hashicorp/aws) aws-sdk-go-v2/1.36.3 ua/2.1 os/linux lang/go#1.23.10 md/GOOS#linux md/GOARCH#amd64 api/s3#1.80.1 m/r,t,u]\",\"errorCode\":\"AccessDenied\",\"errorMessage\":\"User: arn:aws:sts::221717898536:assumed-role/AWSReservedSSO_CICDPolicyDeploy_51af5740be89be69/CICDPipeline is not authorized to perform: s3:CreateBucket on resource: \\\"arn:aws:s3:::cicd-pipeline-artifacts-221717898536\\\" because no identity-based policy allows the s3:CreateBucket action\",\"requestParameters\":{\"bucketName\":\"cicd-pipeline-artifacts-221717898536\",\"Host\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\",\"x-amz-acl\":\"private\"},\"responseElements\":null,\"additionalEventData\":{\"SignatureVersion\":\"SigV4\",\"CipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"bytesTransferredIn\":0,\"AuthenticationMethod\":\"AuthHeader\",\"x-amz-id-2\":\"CaUGI/Baj6XBIB616isVJS5y2xiuwif9CRbhO9RLL6mFHBCWRhkgdF8iFW+0iBjPYlDfSxzqX95rdDzoPLaCyg6vJgUOay8M\",\"bytesTransferredOut\":534},\"requestID\":\"AQH9AADSM9FJG9QC\",\"eventID\":\"5ce9395a-e296-4e07-819d-d332d786b5ac\",\"readOnly\":false,\"eventType\":\"AwsApiCall\",\"managementEvent\":true,\"recipientAccountId\":\"221717898536\",\"eventCategory\":\"Management\",\"tlsDetails\":{\"tlsVersion\":\"TLSv1.3\",\"cipherSuite\":\"TLS_AES_128_GCM_SHA256\",\"clientProvidedHostHeader\":\"cicd-pipeline-artifacts-221717898536.s3.amazonaws.com\"}}"
+        }
+    ]
+}
