@@ -1,3 +1,4 @@
+#trivy:ignore:AVD-AWS-0136
 resource "aws_sns_topic" "approval" {
   name              = "cicd-pipeline-approval-notifications"
   kms_master_key_id = "alias/aws/sns"

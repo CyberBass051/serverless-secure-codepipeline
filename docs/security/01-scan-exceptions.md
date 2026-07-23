@@ -98,6 +98,17 @@ under the current quota would be rejected by the API. A quota
 increase request has not yet been submitted; this exception
 should be revisited once the account limit is raised.
 
+## AVD-AWS-0136 — SNS topic not encrypted with a customer-managed KMS key
+**Resource:** `module.approval_gate.aws_sns_topic.approval`
+
+**Accepted.** This topic only carries manual-approval notification
+messages (pipeline stage name, a CodePipeline console link) — no
+secrets or sensitive payloads. AWS-managed key encryption
+(`alias/aws/sns`, satisfies CKV_AWS_26) is sufficient; a
+customer-managed CMK's key-policy overhead isn't justified here, same
+reasoning as the artifact bucket, CodeBuild projects, and CodePipeline
+findings elsewhere in this project.
+
 ---
 
 ## Remediated (fixed directly, not exceptions)
