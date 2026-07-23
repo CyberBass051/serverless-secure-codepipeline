@@ -1,0 +1,5 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - aws lambda update-function-code --function-name cicd-pipeline-webhook-handler-prod --zip-file fileb://handler.zip

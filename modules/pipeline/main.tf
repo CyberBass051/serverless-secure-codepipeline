@@ -1,0 +1,362 @@
+# ── Packaging (initial creation only — CodeBuild handles all updates after) ──
+data "archive_file" "prod_handler" {
+  type        = "zip"
+  source_dir  = "${path.module}/../../src/webhook_handler"
+  output_path = "${path.module}/prod_handler.zip"
+}
+
+# ── Source: GitHub via CodeStar Connections ──
+# NOTE: requires a one-time manual authorization in the AWS Console after apply
+# (Console → Developer Tools → Settings → Connections → complete "Update pending connection")
+resource "aws_codestarconnections_connection" "github" {
+  name          = "cicd-pipeline-github"
+  provider_type = "GitHub"
+}
+
+# ── Artifact storage ──
+resource "aws_s3_bucket" "pipeline_artifacts" {
+  bucket = "cicd-pipeline-artifacts-221717898536"
+}
+
+resource "aws_s3_bucket_public_access_block" "pipeline_artifacts" {
+  bucket                  = aws_s3_bucket.pipeline_artifacts.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline_artifacts" {
+  bucket = aws_s3_bucket.pipeline_artifacts.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_versioning" "pipeline_artifacts" {
+  bucket = aws_s3_bucket.pipeline_artifacts.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# ── Prod Lambda (demonstration promotion target — not wired to API Gateway) ──
+resource "aws_iam_role" "lambda_exec_prod" {
+  name = "cicd-pipeline-webhook-handler-prod-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "lambda.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_exec_prod" {
+  name = "cicd-pipeline-webhook-handler-prod-policy"
+  role = aws_iam_role.lambda_exec_prod.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "Logging"
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "arn:aws:logs:us-east-1:221717898536:log-group:/aws/lambda/cicd-pipeline-*"
+      }
+    ]
+  })
+}
+
+resource "aws_lambda_function" "webhook_handler_prod" {
+  function_name    = "cicd-pipeline-webhook-handler-prod"
+  role             = aws_iam_role.lambda_exec_prod.arn
+  handler          = "handler.lambda_handler"
+  runtime          = "python3.12"
+  filename         = data.archive_file.prod_handler.output_path
+  source_code_hash = data.archive_file.prod_handler.output_base64sha256
+  timeout          = 10
+
+  environment {
+    variables = {
+      WEBHOOK_SECRET_ARN = var.webhook_secret_arn
+      PIPELINE_NAME      = "cicd-pipeline-placeholder"
+    }
+  }
+}
+
+# ── Build stage ──
+resource "aws_iam_role" "codebuild_build" {
+  name = "cicd-pipeline-codebuild-build"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "codebuild.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "codebuild_build" {
+  name = "cicd-pipeline-codebuild-build-policy"
+  role = aws_iam_role.codebuild_build.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "ArtifactBucketAccess"
+        Effect   = "Allow"
+        Action   = ["s3:GetObject", "s3:PutObject"]
+        Resource = "${aws_s3_bucket.pipeline_artifacts.arn}/*"
+      },
+      {
+        Sid      = "Logging"
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "arn:aws:logs:us-east-1:221717898536:log-group:/aws/codebuild/cicd-pipeline-*"
+      }
+    ]
+  })
+}
+
+resource "aws_codebuild_project" "build" {
+  name         = "cicd-pipeline-build"
+  service_role = aws_iam_role.codebuild_build.arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = false
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "buildspec-build.yml"
+  }
+}
+
+# ── Deploy stages (dev + prod) ──
+resource "aws_iam_role" "codebuild_deploy" {
+  name = "cicd-pipeline-codebuild-deploy"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "codebuild.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "codebuild_deploy" {
+  name = "cicd-pipeline-codebuild-deploy-policy"
+  role = aws_iam_role.codebuild_deploy.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "LambdaCodeUpdate"
+        Effect = "Allow"
+        Action = ["lambda:UpdateFunctionCode", "lambda:GetFunction"]
+        Resource = [
+          "arn:aws:lambda:us-east-1:221717898536:function:cicd-pipeline-webhook-handler",
+          aws_lambda_function.webhook_handler_prod.arn
+        ]
+      },
+      {
+        Sid      = "ArtifactBucketAccess"
+        Effect   = "Allow"
+        Action   = ["s3:GetObject"]
+        Resource = "${aws_s3_bucket.pipeline_artifacts.arn}/*"
+      },
+      {
+        Sid      = "Logging"
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "arn:aws:logs:us-east-1:221717898536:log-group:/aws/codebuild/cicd-pipeline-*"
+      }
+    ]
+  })
+}
+
+resource "aws_codebuild_project" "deploy_dev" {
+  name         = "cicd-pipeline-deploy-dev"
+  service_role = aws_iam_role.codebuild_deploy.arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type = "BUILD_GENERAL1_SMALL"
+    image        = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    type         = "LINUX_CONTAINER"
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "buildspec-deploy-dev.yml"
+  }
+}
+
+resource "aws_codebuild_project" "deploy_prod" {
+  name         = "cicd-pipeline-deploy-prod"
+  service_role = aws_iam_role.codebuild_deploy.arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type = "BUILD_GENERAL1_SMALL"
+    image        = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    type         = "LINUX_CONTAINER"
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "buildspec-deploy-prod.yml"
+  }
+}
+
+# ── CodePipeline service role ──
+resource "aws_iam_role" "codepipeline" {
+  name = "cicd-pipeline-codepipeline-service"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "codepipeline.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "codepipeline" {
+  name = "cicd-pipeline-codepipeline-service-policy"
+  role = aws_iam_role.codepipeline.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ArtifactBucketAccess"
+        Effect = "Allow"
+        Action = ["s3:GetObject", "s3:PutObject", "s3:GetBucketVersioning"]
+        Resource = [
+          aws_s3_bucket.pipeline_artifacts.arn,
+          "${aws_s3_bucket.pipeline_artifacts.arn}/*"
+        ]
+      },
+      {
+        Sid      = "CodeStarConnectionUse"
+        Effect   = "Allow"
+        Action   = "codestar-connections:UseConnection"
+        Resource = aws_codestarconnections_connection.github.arn
+      },
+      {
+        Sid    = "CodeBuildTrigger"
+        Effect = "Allow"
+        Action = ["codebuild:StartBuild", "codebuild:BatchGetBuilds"]
+        Resource = [
+          aws_codebuild_project.build.arn,
+          aws_codebuild_project.deploy_dev.arn,
+          aws_codebuild_project.deploy_prod.arn
+        ]
+      }
+    ]
+  })
+}
+
+# ── The pipeline itself ──
+resource "aws_codepipeline" "this" {
+  name     = "cicd-pipeline"
+  role_arn = aws_iam_role.codepipeline.arn
+
+  artifact_store {
+    location = aws_s3_bucket.pipeline_artifacts.bucket
+    type     = "S3"
+  }
+
+  stage {
+    name = "Source"
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "CodeStarSourceConnection"
+      version          = "1"
+      output_artifacts = ["source_output"]
+      configuration = {
+        ConnectionArn    = aws_codestarconnections_connection.github.arn
+        FullRepositoryId = "CyberBass051/serverless-secure-codepipeline"
+        BranchName       = "main"
+      }
+    }
+  }
+
+  stage {
+    name = "Build"
+    action {
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["build_output"]
+      configuration = {
+        ProjectName = aws_codebuild_project.build.name
+      }
+    }
+  }
+
+  stage {
+    name = "DeployDev"
+    action {
+      name            = "DeployDev"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["build_output"]
+      configuration = {
+        ProjectName = aws_codebuild_project.deploy_dev.name
+      }
+    }
+  }
+
+  stage {
+    name = "ApprovalGate"
+    action {
+      name     = "ManualApproval"
+      category = "Approval"
+      owner    = "AWS"
+      provider = "Manual"
+      version  = "1"
+    }
+  }
+
+  stage {
+    name = "DeployProd"
+    action {
+      name            = "DeployProd"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      version         = "1"
+      input_artifacts = ["build_output"]
+      configuration = {
+        ProjectName = aws_codebuild_project.deploy_prod.name
+      }
+    }
+  }
+}

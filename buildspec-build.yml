@@ -1,0 +1,14 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+  build:
+    commands:
+      - cd src/webhook_handler
+      - pip install -r requirements.txt -t .
+      - zip -r ../../handler.zip .
+artifacts:
+  files:
+    - handler.zip
+  discard-paths: no

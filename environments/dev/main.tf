@@ -29,7 +29,7 @@ module "webhook_receiver" {
   source = "../../modules/webhook-receiver"
 
   project_name       = "cicd-pipeline"
-  pipeline_name      = var.pipeline_name
+  pipeline_name      = module.pipeline.pipeline_name
   webhook_secret_arn = aws_secretsmanager_secret.github_webhook.arn
 }
 
@@ -46,4 +46,9 @@ variable "webhook_secret_value" {
 resource "aws_secretsmanager_secret_version" "github" {
   secret_id     = aws_secretsmanager_secret.github_webhook.id
   secret_string = var.webhook_secret_value
+}
+
+module "pipeline" {
+  source             = "../../modules/pipeline"
+  webhook_secret_arn = aws_secretsmanager_secret.github_webhook.arn
 }
