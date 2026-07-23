@@ -14,9 +14,12 @@ resource "aws_codestarconnections_connection" "github" {
 }
 
 # ── Artifact storage ──
+#trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket" "pipeline_artifacts" {
   # checkov:skip=CKV_AWS_145: AWS-managed key sufficient for build artifacts (source code zips, not secrets); see docs/security/scan-exceptions.md
-  #trivy:ignore:AVD-AWS-0132
+  # checkov:skip=CKV_AWS_18: access logging overhead not justified for a build-artifact-only bucket; see docs/security/scan-exceptions.md
+  # checkov:skip=CKV2_AWS_62: no event-driven use case for this bucket; see docs/security/scan-exceptions.md
+  # checkov:skip=CKV_AWS_144: single-region demo project, cross-region replication not justified; see docs/security/scan-exceptions.md
   bucket = "cicd-pipeline-artifacts-221717898536"
 }
 
@@ -28,8 +31,8 @@ resource "aws_s3_bucket_public_access_block" "pipeline_artifacts" {
   restrict_public_buckets = true
 }
 
+#trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline_artifacts" {
-  #trivy:ignore:AVD-AWS-0132
   bucket = aws_s3_bucket.pipeline_artifacts.id
   rule {
     apply_server_side_encryption_by_default {
@@ -44,6 +47,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "pipeline_artifacts" {
   rule {
     id     = "expire-old-artifacts"
     status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
 
     expiration {
       days = 30
@@ -90,6 +97,7 @@ resource "aws_iam_role_policy" "lambda_exec_prod" {
 resource "aws_lambda_function" "webhook_handler_prod" {
   # checkov:skip=CKV_AWS_117: demo/promotion-target Lambda, not in VPC; see docs/security/scan-exceptions.md
   # checkov:skip=CKV_AWS_173: env vars are non-sensitive identifiers, not secrets; see docs/security/scan-exceptions.md
+  # checkov:skip=CKV_AWS_272: single-maintainer project, code signing overhead not justified; see docs/security/scan-exceptions.md
   function_name    = "cicd-pipeline-webhook-handler-prod"
   role             = aws_iam_role.lambda_exec_prod.arn
   handler          = "handler.lambda_handler"

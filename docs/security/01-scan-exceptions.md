@@ -113,6 +113,22 @@ this content.
 (AWS-owned key) is sufficient for a queue holding only failed
 invocation metadata, not secrets.
 
+## CKV_AWS_272 — Prod Lambda code-signing not configured
+**Resource:** `module.pipeline.aws_lambda_function.webhook_handler_prod`
+
+**Accepted.** Same reasoning as the dev Lambda's entry above.
+
+## CKV_AWS_18 / CKV2_AWS_62 / CKV_AWS_144 — Pipeline artifact bucket: no access logging, no event notifications, no cross-region replication
+**Resource:** `module.pipeline.aws_s3_bucket.pipeline_artifacts`
+
+**Accepted.** This bucket holds only this project's own build
+artifacts. Access logging would require a separate logging-destination
+bucket; event notifications have no use case here (nothing consumes
+bucket events); cross-region replication is disproportionate for a
+single-region demo project with no DR requirement. None of these
+gaps expose sensitive data or meaningfully change this bucket's risk
+profile.
+
 ---
 
 ## Remediated (not exceptions — fixed directly)
