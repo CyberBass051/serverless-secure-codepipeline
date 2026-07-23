@@ -49,9 +49,9 @@ resource "aws_secretsmanager_secret_version" "github" {
 }
 
 module "pipeline" {
-  source              = "../../modules/pipeline"
-  webhook_secret_arn  = aws_secretsmanager_secret.github_webhook.arn
-  approval_topic_arn  = module.approval_gate.topic_arn
+  source             = "../../modules/pipeline"
+  webhook_secret_arn = aws_secretsmanager_secret.github_webhook.arn
+  approval_topic_arn = module.approval_gate.topic_arn
 }
 
 module "approval_gate" {
