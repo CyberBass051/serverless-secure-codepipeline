@@ -136,6 +136,14 @@ profile.
 findings (CKV_AWS_145/AVD-AWS-0132) — the pipeline's artifact store
 is that same bucket, holding build artifacts rather than secrets.
 
+## CKV_AWS_147 — CodeBuild projects not encrypted with a KMS CMK
+**Resources:** `module.pipeline.aws_codebuild_project.build`,
+`.deploy_dev`, `.deploy_prod`
+
+**Accepted.** Same reasoning as the artifact bucket and CodePipeline
+findings — these projects handle build logs and source-code
+artifacts, not secrets. AWS-managed key encryption is sufficient.
+
 ---
 
 ## Remediated (not exceptions — fixed directly)

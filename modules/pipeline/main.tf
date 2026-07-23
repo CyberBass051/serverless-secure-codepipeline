@@ -105,7 +105,10 @@ resource "aws_lambda_function" "webhook_handler_prod" {
   filename                       = data.archive_file.prod_handler.output_path
   source_code_hash               = data.archive_file.prod_handler.output_base64sha256
   timeout                        = 10
-  reserved_concurrent_executions = -1
+  reserved_concurrent_executions = 5
+  tracing_config {
+    mode = "Active"
+  }
 
   environment {
     variables = {
@@ -151,6 +154,7 @@ resource "aws_iam_role_policy" "codebuild_build" {
 }
 
 resource "aws_codebuild_project" "build" {
+  # checkov:skip=CKV_AWS_147: build logs/artifacts, not secrets; AWS-managed key sufficient; see docs/security/scan-exceptions.md
   name         = "cicd-pipeline-build"
   service_role = aws_iam_role.codebuild_build.arn
 
@@ -216,6 +220,7 @@ resource "aws_iam_role_policy" "codebuild_deploy" {
 }
 
 resource "aws_codebuild_project" "deploy_dev" {
+  # checkov:skip=CKV_AWS_147: build logs/artifacts, not secrets; AWS-managed key sufficient; see docs/security/scan-exceptions.md
   name         = "cicd-pipeline-deploy-dev"
   service_role = aws_iam_role.codebuild_deploy.arn
 
@@ -236,6 +241,7 @@ resource "aws_codebuild_project" "deploy_dev" {
 }
 
 resource "aws_codebuild_project" "deploy_prod" {
+  # checkov:skip=CKV_AWS_147: build logs/artifacts, not secrets; AWS-managed key sufficient; see docs/security/scan-exceptions.md
   name         = "cicd-pipeline-deploy-prod"
   service_role = aws_iam_role.codebuild_deploy.arn
 
