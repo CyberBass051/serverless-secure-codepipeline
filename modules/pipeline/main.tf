@@ -349,6 +349,12 @@ resource "aws_iam_role_policy" "codepipeline" {
           aws_codebuild_project.deploy_dev.arn,
           aws_codebuild_project.deploy_prod.arn
         ]
+      },
+      {
+        Sid      = "SnsApprovalPublish"
+        Effect   = "Allow"
+        Action   = "sns:Publish"
+        Resource = module.approval_gate.topic_arn
       }
     ]
   })

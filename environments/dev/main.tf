@@ -52,3 +52,13 @@ module "pipeline" {
   source             = "../../modules/pipeline"
   webhook_secret_arn = aws_secretsmanager_secret.github_webhook.arn
 }
+
+module "approval_gate" {
+  source             = "../../modules/approval-gate"
+  notification_email = var.approval_notification_email
+}
+
+variable "approval_notification_email" {
+  description = "Email to notify for pipeline manual approvals"
+  type        = string
+}
