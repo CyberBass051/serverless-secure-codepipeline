@@ -129,6 +129,13 @@ single-region demo project with no DR requirement. None of these
 gaps expose sensitive data or meaningfully change this bucket's risk
 profile.
 
+## CKV_AWS_219 — CodePipeline artifact store not using a KMS CMK
+**Resource:** `module.pipeline.aws_codepipeline.this`
+
+**Accepted.** Same reasoning as the artifact bucket's own KMS
+findings (CKV_AWS_145/AVD-AWS-0132) — the pipeline's artifact store
+is that same bucket, holding build artifacts rather than secrets.
+
 ---
 
 ## Remediated (not exceptions — fixed directly)
