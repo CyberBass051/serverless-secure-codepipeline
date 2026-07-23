@@ -29,10 +29,24 @@ resource "aws_s3_bucket_public_access_block" "pipeline_artifacts" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline_artifacts" {
+  #trivy:ignore:AVD-AWS-0132
   bucket = aws_s3_bucket.pipeline_artifacts.id
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_lifecycle_configuration" "pipeline_artifacts" {
+  bucket = aws_s3_bucket.pipeline_artifacts.id
+
+  rule {
+    id     = "expire-old-artifacts"
+    status = "Enabled"
+
+    expiration {
+      days = 30
     }
   }
 }
@@ -74,6 +88,8 @@ resource "aws_iam_role_policy" "lambda_exec_prod" {
 }
 
 resource "aws_lambda_function" "webhook_handler_prod" {
+  # checkov:skip=CKV_AWS_117: demo/promotion-target Lambda, not in VPC; see docs/security/scan-exceptions.md
+  # checkov:skip=CKV_AWS_173: env vars are non-sensitive identifiers, not secrets; see docs/security/scan-exceptions.md
   function_name    = "cicd-pipeline-webhook-handler-prod"
   role             = aws_iam_role.lambda_exec_prod.arn
   handler          = "handler.lambda_handler"

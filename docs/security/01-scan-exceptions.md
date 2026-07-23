@@ -18,6 +18,17 @@ no corresponding security benefit for a function whose entire job is
 receiving public webhook traffic. VPC placement matters for functions
 accessing private resources (RDS, internal services); this one doesn't.
 
+## CKV_AWS_117 / CKV_AWS_173 — Now also applies to the prod Lambda
+**Resources:** `module.pipeline.aws_lambda_function.webhook_handler_prod`,
+`module.webhook_receiver.aws_lambda_function.webhook_handler`
+
+**Accepted.** Same reasoning as the original entries above — the
+prod Lambda is a demonstration promotion target for this project's
+approval-gate and incident-simulation stages, not a function handling
+external sensitive traffic (only the dev Lambda is wired to API
+Gateway). VPC placement and CMK-encrypted environment variables carry
+the same disproportionate-overhead argument as the dev Lambda.
+
 ## CKV_AWS_309 — API Gateway route has no authorization type
 **Resource:** `module.webhook_receiver.aws_apigatewayv2_route.webhook_post`
 
@@ -95,6 +106,13 @@ secrets or sensitive data. AWS-managed SSE-S3 encryption is sufficient;
 a customer-managed CMK's added key-policy control isn't justified for
 this content.
 
+## CKV_AWS_27 — Prod DLQ not encrypted with a KMS CMK
+**Resource:** `module.pipeline.aws_sqs_queue.prod_dlq`
+
+**Accepted.** Same reasoning as the dev Lambda's DLQ — SSE-SQS
+(AWS-owned key) is sufficient for a queue holding only failed
+invocation metadata, not secrets.
+
 ---
 
 ## Remediated (not exceptions — fixed directly)
@@ -113,3 +131,6 @@ rather than a legitimate design tradeoff:
 - **CKV2_GHA_1** (GitHub Actions top-level `permissions: write-all`)
   — set explicit least-privilege `permissions` at the workflow and
   per-job level in `security-scan.yml`.
+- **CKV2_AWS_61** (pipeline artifact bucket had no lifecycle policy)
+  — added a 30-day expiration rule to prevent unbounded artifact
+  accumulation and cost.
