@@ -94,6 +94,13 @@ resource "aws_iam_role_policy" "lambda_exec_prod" {
   })
 }
 
+resource "aws_sqs_queue" "prod_dlq" {
+  # checkov:skip=CKV_AWS_27: AWS-managed key sufficient; see docs/security/scan-exceptions.md
+  name                    = "cicd-pipeline-webhook-prod-dlq"
+  sqs_managed_sse_enabled = true
+}
+
+
 resource "aws_lambda_function" "webhook_handler_prod" {
   # checkov:skip=CKV_AWS_117: demo/promotion-target Lambda, not in VPC; see docs/security/scan-exceptions.md
   # checkov:skip=CKV_AWS_173: env vars are non-sensitive identifiers, not secrets; see docs/security/scan-exceptions.md
@@ -106,6 +113,11 @@ resource "aws_lambda_function" "webhook_handler_prod" {
   source_code_hash               = data.archive_file.prod_handler.output_base64sha256
   timeout                        = 10
   reserved_concurrent_executions = 5
+
+  dead_letter_config {
+    target_arn = aws_sqs_queue.prod_dlq.arn
+  }
+
   tracing_config {
     mode = "Active"
   }
@@ -160,6 +172,12 @@ resource "aws_codebuild_project" "build" {
 
   artifacts {
     type = "CODEPIPELINE"
+  }
+
+  logs_config {
+    cloudwatch_logs {
+      status = "ENABLED"
+    }
   }
 
   environment {
@@ -228,6 +246,12 @@ resource "aws_codebuild_project" "deploy_dev" {
     type = "CODEPIPELINE"
   }
 
+  logs_config {
+    cloudwatch_logs {
+      status = "ENABLED"
+    }
+  }
+
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
     image        = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
@@ -247,6 +271,12 @@ resource "aws_codebuild_project" "deploy_prod" {
 
   artifacts {
     type = "CODEPIPELINE"
+  }
+
+  logs_config {
+    cloudwatch_logs {
+      status = "ENABLED"
+    }
   }
 
   environment {

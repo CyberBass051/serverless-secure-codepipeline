@@ -1,167 +1,110 @@
-# Checkov & Trivy Scan Exceptions
+# Checkov / Trivy Scan Exceptions
 
-This document tracks Checkov and Trivy findings that are intentionally not
-remediated, with the reasoning for each. Every exception listed here
-is also suppressed inline in the relevant `.tf` file with a matching
-`checkov:skip` comment, so the CI scan passes honestly rather than by
-having its bar silently lowered.
+This document tracks security scan findings that are intentionally
+not remediated, with reasoning for each. Every exception here is also
+suppressed inline in the relevant `.tf` file with a matching
+`checkov:skip` or `#trivy:ignore` comment, so CI passes honestly
+rather than by having its bar silently lowered.
 
 ---
 
-## CKV_AWS_117 — Lambda not configured inside a VPC
-**Resource:** `module.webhook_receiver.aws_lambda_function.webhook_handler`
+## Lambda functions (webhook receiver — dev and prod)
+**Resources:** `module.webhook_receiver.aws_lambda_function.webhook_handler`,
+`module.pipeline.aws_lambda_function.webhook_handler_prod`
 
-**Accepted.** Placing this Lambda in a VPC would require a NAT Gateway
-(~$32/month) or VPC endpoints for it to still reach Secrets Manager and
-CodePipeline's public API endpoints — added cost and complexity with
-no corresponding security benefit for a function whose entire job is
-receiving public webhook traffic. VPC placement matters for functions
-accessing private resources (RDS, internal services); this one doesn't.
+### CKV_AWS_117 — Not configured inside a VPC
+**Accepted.** Both functions are public-facing or promotion-target
+demo functions; VPC placement would require a NAT Gateway or VPC
+endpoints for no corresponding security benefit.
 
-## CKV_AWS_117 / CKV_AWS_173 — Now also applies to the prod Lambda
-**Resources:** `module.pipeline.aws_lambda_function.webhook_handler_prod`,
-`module.webhook_receiver.aws_lambda_function.webhook_handler`
+### CKV_AWS_173 — Environment variables not encrypted with a KMS CMK
+**Accepted.** Environment variables (`WEBHOOK_SECRET_ARN`,
+`PIPELINE_NAME`) are non-sensitive identifiers, not secrets. AWS-managed
+encryption at rest is sufficient.
 
-**Accepted.** Same reasoning as the original entries above — the
-prod Lambda is a demonstration promotion target for this project's
-approval-gate and incident-simulation stages, not a function handling
-external sensitive traffic (only the dev Lambda is wired to API
-Gateway). VPC placement and CMK-encrypted environment variables carry
-the same disproportionate-overhead argument as the dev Lambda.
+### CKV_AWS_272 — Code-signing not configured
+**Accepted.** Single-maintainer project; code-signing overhead
+(signing profiles, a signing pipeline) isn't justified without
+multiple contributors.
 
-## CKV_AWS_309 — API Gateway route has no authorization type
-**Resource:** `module.webhook_receiver.aws_apigatewayv2_route.webhook_post`
+### CKV2_AWS_57 — Secrets Manager secret has no automatic rotation
+**Accepted, documented follow-up.** See [ADR 001](../adr/001-webhook-secret-storage.md).
+Manual rotation only, for now.
 
-**Accepted.** GitHub webhook deliveries cannot authenticate via IAM or
-JWT — GitHub has no mechanism to attach AWS SigV4 or a bearer token to
-outbound webhook requests. Authentication is instead enforced inside
-the Lambda handler via HMAC-SHA256 signature verification
-(`X-Hub-Signature-256`, compared with `hmac.compare_digest` to avoid
-timing attacks) against a secret shared only between GitHub and this
-project's Secrets Manager entry. `authorization_type = "NONE"` at the
-route level is correct, not an oversight — the auth boundary is
-application-level, not transport-level. Same pattern as the accepted
-public-ALB-ingress finding in `wazuh-auto-scaling`.
+### CKV_AWS_149 / CKV_AWS_173 (secret + env vars) — Not encrypted with a KMS CMK
+**Accepted.** AWS-managed keys encrypt Secrets Manager and Lambda env
+vars by default; a CMK's key-policy control isn't justified here.
 
-## CKV_AWS_272 — Lambda code-signing not configured
-**Resource:** `module.webhook_receiver.aws_lambda_function.webhook_handler`
+### CKV_AWS_309 — API Gateway route has no authorization type
+**Accepted.** GitHub webhooks can't use IAM/JWT auth. Authentication
+is enforced inside the Lambda via HMAC-SHA256 signature verification.
 
-**Accepted.** Code signing (AWS Signer, signing profiles, a signing
-job pipeline) is meaningful for organizations with multiple developers
-deploying to shared production Lambdas, where you need cryptographic
-proof of *who* built and shipped a given artifact. For a single-
-maintainer portfolio project, the operational overhead of standing up
-a signing profile isn't justified by the risk it mitigates here.
-Revisit if this project ever has more than one contributor.
+### CKV_AWS_158 — API Gateway CloudWatch Log Group not KMS-encrypted
+**Accepted.** Log group holds access-log metadata (request IDs,
+source IPs, status codes), not sensitive content.
 
-## CKV_AWS_149 — Secrets Manager secret not encrypted with a KMS CMK
-**Resource:** `aws_secretsmanager_secret.github_webhook`
+### CKV_AWS_27 — DLQ (SQS) not encrypted with a KMS CMK
+**Accepted** (dev and prod DLQs). SSE-SQS (AWS-owned key) is
+sufficient for queues holding only failed invocation metadata.
 
-**Accepted.** Secrets Manager encrypts all secrets at rest using AWS's
-default `aws/secretsmanager` KMS key regardless of whether a customer-
-managed key (CMK) is specified. A CMK adds key-policy-level access
-control and independent audit trail for key usage — valuable for
-compliance regimes (e.g., requiring customer-controlled key rotation
-or explicit key-level IAM boundaries) but disproportionate overhead
-for a single secret in a demo project with no compliance driver.
+---
 
-## CKV_AWS_158 — CloudWatch Log Group not encrypted with a KMS CMK
-**Resource:** `module.webhook_receiver.aws_cloudwatch_log_group.api_gw`
-
-**Accepted.** Same reasoning as CKV_AWS_149/CKV_AWS_173 — CloudWatch
-Logs encrypts at rest by default using AWS-managed keys. A
-customer-managed CMK would add key-policy-level access control, but
-this log group contains API Gateway access logs (request IDs, source
-IPs, status codes) — operational metadata, not secrets or sensitive
-payload content — so the added overhead of a CMK isn't justified here.
-
-## CKV_AWS_173 — Lambda environment variables not encrypted with a KMS CMK
-**Resource:** `module.webhook_receiver.aws_lambda_function.webhook_handler`
-
-**Accepted.** Same reasoning as CKV_AWS_149 — Lambda environment
-variables are encrypted at rest by default using AWS-managed keys.
-Also worth noting: the environment variables here
-(`WEBHOOK_SECRET_ARN`, `PIPELINE_NAME`) are non-sensitive references
-and identifiers, not the secret value itself — the actual HMAC secret
-is fetched at invocation time via `secretsmanager:GetSecretValue`, never
-stored as a plaintext environment variable.
-
-## CKV2_AWS_57 — Secrets Manager secret has no automatic rotation
-**Resource:** `aws_secretsmanager_secret.github_webhook`
-
-**Accepted, documented follow-up.** Already noted as a known gap in
-[ADR 001](../adr/001-webhook-secret-storage.md) at the time the
-storage decision was made. Manual rotation only, for now. Automatic
-rotation would require a rotation Lambda that also updates the
-corresponding secret on the GitHub webhook configuration side, which
-GitHub's API supports but which is out of scope for this project's
-current stage.
-
-## CKV_AWS_145 / AVD-AWS-0132 — S3 bucket not encrypted with a KMS CMK
+## Pipeline artifact bucket
 **Resource:** `module.pipeline.aws_s3_bucket.pipeline_artifacts`
 
-**Accepted.** Same reasoning as CKV_AWS_149/CKV_AWS_173 — this bucket
-stores CodePipeline's build artifacts (zipped source code), not
-secrets or sensitive data. AWS-managed SSE-S3 encryption is sufficient;
-a customer-managed CMK's added key-policy control isn't justified for
-this content.
+### CKV_AWS_145 / AVD-AWS-0132 — Not encrypted with a KMS CMK
+**Accepted.** Bucket holds build artifacts (source code zips), not
+secrets. AWS-managed SSE-S3 is sufficient.
 
-## CKV_AWS_27 — Prod DLQ not encrypted with a KMS CMK
-**Resource:** `module.pipeline.aws_sqs_queue.prod_dlq`
+### CKV_AWS_18 — No access logging enabled
+**Accepted.** Would require a separate logging-destination bucket;
+disproportionate for a build-artifact-only bucket.
 
-**Accepted.** Same reasoning as the dev Lambda's DLQ — SSE-SQS
-(AWS-owned key) is sufficient for a queue holding only failed
-invocation metadata, not secrets.
+### CKV2_AWS_62 — No event notifications enabled
+**Accepted.** No event-driven use case for this bucket.
 
-## CKV_AWS_272 — Prod Lambda code-signing not configured
-**Resource:** `module.pipeline.aws_lambda_function.webhook_handler_prod`
+### CKV_AWS_144 — No cross-region replication
+**Accepted.** Single-region demo project, no DR requirement.
 
-**Accepted.** Same reasoning as the dev Lambda's entry above.
+---
 
-## CKV_AWS_18 / CKV2_AWS_62 / CKV_AWS_144 — Pipeline artifact bucket: no access logging, no event notifications, no cross-region replication
-**Resource:** `module.pipeline.aws_s3_bucket.pipeline_artifacts`
-
-**Accepted.** This bucket holds only this project's own build
-artifacts. Access logging would require a separate logging-destination
-bucket; event notifications have no use case here (nothing consumes
-bucket events); cross-region replication is disproportionate for a
-single-region demo project with no DR requirement. None of these
-gaps expose sensitive data or meaningfully change this bucket's risk
-profile.
-
-## CKV_AWS_219 — CodePipeline artifact store not using a KMS CMK
+## CodePipeline
 **Resource:** `module.pipeline.aws_codepipeline.this`
 
+### CKV_AWS_219 — Artifact store not using a KMS CMK
 **Accepted.** Same reasoning as the artifact bucket's own KMS
-findings (CKV_AWS_145/AVD-AWS-0132) — the pipeline's artifact store
-is that same bucket, holding build artifacts rather than secrets.
+findings — it's the same underlying bucket.
 
-## CKV_AWS_147 — CodeBuild projects not encrypted with a KMS CMK
+---
+
+## CodeBuild projects
 **Resources:** `module.pipeline.aws_codebuild_project.build`,
 `.deploy_dev`, `.deploy_prod`
 
-**Accepted.** Same reasoning as the artifact bucket and CodePipeline
-findings — these projects handle build logs and source-code
-artifacts, not secrets. AWS-managed key encryption is sufficient.
+### CKV_AWS_147 — Not encrypted with a KMS CMK
+**Accepted.** Projects handle build logs and source-code artifacts,
+not secrets.
 
 ---
 
-## Remediated (not exceptions — fixed directly)
+## Remediated (fixed directly, not exceptions)
 
-For contrast, these findings from the same scan were fixed rather than
-accepted, since they were either cheap or represented a real gap
-rather than a legitimate design tradeoff:
-
-- **CKV_AWS_116** (no DLQ) — added an SQS dead-letter queue.
-- **CKV_AWS_50** (no X-Ray tracing) — enabled active tracing.
-- **CKV_AWS_115** (no concurrency limit) — set
-  `reserved_concurrent_executions = 5` to bound cost and blast radius
-  from a flood of malformed or malicious webhook POSTs.
-- **CKV_AWS_76** (no API Gateway access logging) — added a CloudWatch
-  Logs destination and access log format on the `$default` stage.
+- **CKV_AWS_116** (no DLQ) — SQS dead-letter queues added to both
+  Lambdas.
+- **CKV_AWS_50** (no X-Ray tracing) — active tracing enabled on both
+  Lambdas.
+- **CKV_AWS_115** (no concurrency limit) — `reserved_concurrent_executions`
+  set on both Lambdas.
+- **CKV_AWS_76** (no API Gateway access logging) — CloudWatch Logs
+  destination and access log format added.
 - **CKV2_GHA_1** (GitHub Actions top-level `permissions: write-all`)
-  — set explicit least-privilege `permissions` at the workflow and
-  per-job level in `security-scan.yml`.
-- **CKV2_AWS_61** (pipeline artifact bucket had no lifecycle policy)
-  — added a 30-day expiration rule to prevent unbounded artifact
-  accumulation and cost.
+  — explicit least-privilege `permissions` set at workflow and
+  per-job level.
+- **CKV2_AWS_61** (artifact bucket had no lifecycle policy) — 30-day
+  expiration rule added.
+- **CKV_AWS_300** (lifecycle missing incomplete-multipart-upload
+  abort) — `abort_incomplete_multipart_upload` added to the same
+  lifecycle rule.
+- **CKV_AWS_314** (CodeBuild projects missing logging configuration)
+  — `logs_config { cloudwatch_logs { status = "ENABLED" } }` added
+  to all three CodeBuild projects.
