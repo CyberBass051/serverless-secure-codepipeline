@@ -25,5 +25,5 @@ resource "aws_sns_topic_policy" "approval" {
 resource "aws_sns_topic_subscription" "email" {
   topic_arn = aws_sns_topic.approval.arn
   protocol  = "email"
-  enpoint   = var.notification_email
+  endpoint   = var.notification_email
 }

@@ -354,7 +354,7 @@ resource "aws_iam_role_policy" "codepipeline" {
         Sid      = "SnsApprovalPublish"
         Effect   = "Allow"
         Action   = "sns:Publish"
-        Resource = module.approval_gate.topic_arn
+        Resource = var.approval_gate
       }
     ]
   })
@@ -428,7 +428,7 @@ resource "aws_codepipeline" "this" {
       provider = "Manual"
       version  = "1"
       configuration = {
-        NotificationArn = module.approval_gate.topic_arn
+        NotificationArn = var.approval_topic_arn
         CustomData      = "Review the build and approve to promote to prod."
       }
     }
