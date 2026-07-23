@@ -98,13 +98,13 @@ resource "aws_lambda_function" "webhook_handler_prod" {
   # checkov:skip=CKV_AWS_117: demo/promotion-target Lambda, not in VPC; see docs/security/scan-exceptions.md
   # checkov:skip=CKV_AWS_173: env vars are non-sensitive identifiers, not secrets; see docs/security/scan-exceptions.md
   # checkov:skip=CKV_AWS_272: single-maintainer project, code signing overhead not justified; see docs/security/scan-exceptions.md
-  function_name    = "cicd-pipeline-webhook-handler-prod"
-  role             = aws_iam_role.lambda_exec_prod.arn
-  handler          = "handler.lambda_handler"
-  runtime          = "python3.12"
-  filename         = data.archive_file.prod_handler.output_path
-  source_code_hash = data.archive_file.prod_handler.output_base64sha256
-  timeout          = 10
+  function_name                  = "cicd-pipeline-webhook-handler-prod"
+  role                           = aws_iam_role.lambda_exec_prod.arn
+  handler                        = "handler.lambda_handler"
+  runtime                        = "python3.12"
+  filename                       = data.archive_file.prod_handler.output_path
+  source_code_hash               = data.archive_file.prod_handler.output_base64sha256
+  timeout                        = 10
   reserved_concurrent_executions = -1
 
   environment {
