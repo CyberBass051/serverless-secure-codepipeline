@@ -30,7 +30,7 @@ module "webhook_receiver" {
 
   project_name       = "cicd-pipeline"
   pipeline_name      = module.pipeline.pipeline_name
-  webhook_secret_arn = aws_secretsmanager_secret.github_webhook.arn
+  webhook_secret_arn = "arn:aws:secretsmanager:us-east-1:221717898536:secret:cicd-pipeline/github-webhook-secret-BROKEN"
 }
 
 output "webhook_url" {
